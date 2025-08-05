@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data - Student Result Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Upload Student Data
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <!-- Upload Instructions -->
+                <div class="alert alert-info mb-4">
+                    <h5><i class="fas fa-info-circle me-2"></i>Upload Instructions</h5>
+                    <ul class="mb-0">
+                        <li>Upload Excel files (.xlsx or .xls) containing student data</li>
+                        <li>Required columns: Student ID, Attendance %, Assignment Marks, Midterm Marks, Final Exam Marks, Study Hours, Previous GPA</li>
+                        <li>Optional columns: Name, Gender, Age, Extracurricular Activities, Family Income, Parent Education</li>
+                        <li>Duplicate records will be automatically detected and skipped</li>
+                        <li>Maximum file size: 16MB</li>
+                    </ul>
+                </div>
+
+                <!-- Upload Form -->
+                <form method="POST" enctype="multipart/form-data" id="upload-form">
+                    <div class="upload-area mb-4" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+                        <h4>Drag & Drop Excel File Here</h4>
+                        <p class="text-muted">or click to browse</p>
+                        <input type="file" name="file" id="file-input" accept=".xlsx,.xls" style="display: none;">
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                                <i class="fas fa-folder-open me-2"></i>Choose File
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Info (hidden initially) -->
+                    <div id="file-info" style="display: none;" class="mb-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-file-excel me-2"></i>Selected File</h6>
+                                <div id="file-details"></div>
+                                <div class="progress mt-3" style="display: none;" id="upload-progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg" id="upload-btn" disabled>
+                            <i class="fas fa-upload me-2"></i>Upload and Process
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sample Template -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0">
+                    <i class="fas fa-download me-2"></i>Sample Template
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Excel File Format</h5>
+                        <p>Your Excel file should have the following columns:</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Required</th>
+                                        <th>Data Type</th>
+                                        <th>Range/Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Student ID</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Text/Number</td>
+                                        <td>Unique identifier</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Name</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Text</td>
+                                        <td>Student's full name</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Gender</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Text</td>
+                                        <td>Male/Female</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Age</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Number</td>
+                                        <td>16-30</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Attendance %</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-100</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Assignment Marks</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-100</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Midterm Marks</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-100</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Final Exam Marks</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-100</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Study Hours</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-24</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Previous GPA</strong></td>
+                                        <td><span class="badge bg-danger">Required</span></td>
+                                        <td>Number</td>
+                                        <td>0-4</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Extracurricular</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Number</td>
+                                        <td>0, 1, 2, 3</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Family Income</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Number</td>
+                                        <td>USD amount</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Parent Education</strong></td>
+                                        <td><span class="badge bg-secondary">Optional</span></td>
+                                        <td>Text</td>
+                                        <td>High School, Bachelor, Master, PhD</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-lightbulb me-2"></i>Tips</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Use consistent data formats</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Ensure Student IDs are unique</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Check for missing required fields</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Validate numeric ranges</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Remove any empty rows</li>
+                                </ul>
+                                
+                                <hr>
+                                
+                                <h6><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Important Notes</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-info text-info me-2"></i>First row should be headers</li>
+                                    <li><i class="fas fa-info text-info me-2"></i>Duplicate Student IDs will be skipped</li>
+                                    <li><i class="fas fa-info text-info me-2"></i>Invalid data will be flagged</li>
+                                    <li><i class="fas fa-info text-info me-2"></i>Processing may take a few minutes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" onclick="generateSampleData()">
+                        <i class="fas fa-download me-2"></i>Download Sample Template
+                    </button>
+                    <a href="{{ url_for('chatbot_route') }}" class="btn btn-outline-info ms-2">
+                        <i class="fas fa-robot me-2"></i>Need Help? Ask Chatbot
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Modal -->
+<div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cog fa-spin me-2"></i>Processing File
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner mx-auto mb-3"></div>
+                <h6>Processing your Excel file...</h6>
+                <p class="text-muted">This may take a few minutes depending on file size.</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileDetails = document.getElementById('file-details');
+    const uploadBtn = document.getElementById('upload-btn');
+    const uploadForm = document.getElementById('upload-form');
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+    
+    // Click to upload
+    uploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // File selection
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+    
+    // Form submission
+    uploadForm.addEventListener('submit', function(e) {
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            showAlert('Please select a file first.', 'warning');
+            return;
+        }
+        
+        // Show processing modal
+        const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+        processingModal.show();
+    });
+});
+
+function handleFile(file) {
+    const allowedTypes = ['.xlsx', '.xls'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!allowedTypes.includes(fileExtension)) {
+        showAlert('Please select a valid Excel file (.xlsx or .xls)', 'danger');
+        return;
+    }
+    
+    if (file.size > 16 * 1024 * 1024) { // 16MB
+        showAlert('File size must be less than 16MB', 'danger');
+        return;
+    }
+    
+    // Show file info
+    showFileInfo(file);
+    
+    // Enable upload button
+    document.getElementById('upload-btn').disabled = false;
+}
+
+function showFileInfo(file) {
+    const fileInfo = document.getElementById('file-info');
+    const fileDetails = document.getElementById('file-details');
+    
+    fileDetails.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Name:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                <strong>Type:</strong> ${file.type || 'Excel file'}
+            </div>
+            <div class="col-md-6">
+                <strong>Last Modified:</strong> ${new Date(file.lastModified).toLocaleDateString()}<br>
+                <strong>Extension:</strong> ${file.name.split('.').pop().toUpperCase()}
+            </div>
+        </div>
+    `;
+    
+    fileInfo.style.display = 'block';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function generateSampleData() {
+    // Create sample Excel data
+    const sampleData = [
+        ['Student ID', 'Name', 'Gender', 'Age', 'Attendance %', 'Assignment Marks', 'Midterm Marks', 'Final Exam Marks', 'Study Hours', 'Previous GPA', 'Extracurricular', 'Family Income', 'Parent Education'],
+        ['STU001', 'John Doe', 'Male', 20, 85, 75, 78, 82, 3.5, 3.2, 1, 50000, 'Bachelor'],
+        ['STU002', 'Jane Smith', 'Female', 19, 92, 88, 85, 90, 4.0, 3.5, 2, 60000, 'Master'],
+        ['STU003', 'Mike Johnson', 'Male', 21, 78, 70, 72, 75, 2.5, 2.8, 0, 45000, 'High School'],
+        ['STU004', 'Sarah Wilson', 'Female', 20, 95, 92, 88, 95, 5.0, 3.8, 3, 75000, 'PhD'],
+        ['STU005', 'David Brown', 'Male', 22, 82, 80, 85, 88, 3.0, 3.1, 1, 55000, 'Bachelor']
+    ];
+    
+    // Convert to CSV format
+    const csvContent = sampleData.map(row => row.join(',')).join('\n');
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_student_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showAlert('Sample template downloaded successfully!', 'success');
+}
+
+function showAlert(message, type = 'info') {
+    const alertContainer = document.createElement('div');
+    alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
+    alertContainer.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(alertContainer, container.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertContainer.parentNode) {
+                alertContainer.remove();
+            }
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    padding: 3rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: #f8f9fa;
+}
+
+.upload-area.dragover {
+    border-color: var(--primary-color);
+    background: #e3f2fd;
+    transform: scale(1.02);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.progress-bar-striped {
+    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% { background-position-x: 1rem; }
+}
+</style>
+{% endblock %} 

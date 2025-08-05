@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result - Student Result Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Result Card -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-{{ 'success' if prediction.result_text == 'Pass' else 'danger' }} text-white">
+                <h2 class="mb-0">
+                    <i class="fas fa-{{ 'check-circle' if prediction.result_text == 'Pass' else 'times-circle' }} me-2"></i>
+                    Prediction Result
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <!-- Result Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-6 text-center">
+                        <div class="result-circle bg-{{ 'success' if prediction.result_text == 'Pass' else 'danger' }} text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                            <div class="text-center">
+                                <h1 class="mb-0">{{ prediction.result_text }}</h1>
+                                <p class="mb-0">Grade: {{ prediction.predicted_grade }}</p>
+                            </div>
+                        </div>
+                        <h4 class="text-{{ 'success' if prediction.result_text == 'Pass' else 'danger' }}">
+                            {{ prediction.result_text }} Prediction
+                        </h4>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h3 class="text-success mb-1">{{ prediction.pass_probability }}%</h3>
+                                    <p class="text-muted mb-0">Pass Probability</p>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h3 class="text-danger mb-1">{{ prediction.fail_probability }}%</h3>
+                                    <p class="text-muted mb-0">Fail Probability</p>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h3 class="text-info mb-1">{{ prediction.confidence_score }}%</h3>
+                                    <p class="text-muted mb-0">Confidence</p>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h3 class="text-warning mb-1">{{ prediction.predicted_grade }}</h3>
+                                    <p class="text-muted mb-0">Predicted Grade</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Information -->
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-brain me-2"></i>Model Information</h6>
+                    <p class="mb-0">
+                        <strong>Algorithm Used:</strong> {{ prediction.model_used }}<br>
+                        <strong>Confidence Level:</strong> 
+                        {% if prediction.confidence_score > 80 %}
+                            <span class="badge bg-success">High</span>
+                        {% elif prediction.confidence_score > 60 %}
+                            <span class="badge bg-warning">Medium</span>
+                        {% else %}
+                            <span class="badge bg-danger">Low</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Student Data Summary -->
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-user me-2"></i>Student Information
+                        </h5>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Student ID:</strong></td>
+                                <td>{{ student_data.student_id or 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Name:</strong></td>
+                                <td>{{ student_data.name or 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gender:</strong></td>
+                                <td>{{ student_data.gender or 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Age:</strong></td>
+                                <td>{{ student_data.age or 'N/A' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Attendance:</strong></td>
+                                <td>{{ student_data.attendance_percentage or 'N/A' }}%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Study Hours:</strong></td>
+                                <td>{{ student_data.study_hours_per_day or 'N/A' }} hours/day</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Previous GPA:</strong></td>
+                                <td>{{ student_data.previous_semester_gpa or 'N/A' }}/4.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Extracurricular:</strong></td>
+                                <td>{{ student_data.extracurricular_activities or 'N/A' }} activities</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Insights Card -->
+        {% if insights and insights.success %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Performance Insights
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if insights.insights %}
+                <ul class="list-unstyled">
+                    {% for insight in insights.insights %}
+                    <li class="mb-2">
+                        <i class="fas fa-arrow-right text-info me-2"></i>
+                        {{ insight }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <strong>Confidence Level:</strong> 
+                    <span class="badge bg-{{ 'success' if insights.confidence_level == 'High' else 'warning' if insights.confidence_level == 'Medium' else 'danger' }}">
+                        {{ insights.confidence_level }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Save Status -->
+        {% if save_result %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-{{ 'success' if save_result.success else 'danger' }} text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-{{ 'check' if save_result.success else 'exclamation-triangle' }} me-2"></i>
+                    Data Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">{{ save_result.message }}</p>
+                {% if save_result.total_records %}
+                <p class="mb-0"><strong>Total Records:</strong> {{ save_result.total_records }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Prediction
+                    </a>
+                    <a href="{{ url_for('upload') }}" class="btn btn-success">
+                        <i class="fas fa-upload me-2"></i>Upload Data
+                    </a>
+                    <a href="{{ url_for('chatbot_route') }}" class="btn btn-info">
+                        <i class="fas fa-robot me-2"></i>Ask Chatbot
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Analysis -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Detailed Analysis
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Academic Performance Chart -->
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-primary mb-3">Academic Performance</h5>
+                        <canvas id="performanceChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Confidence Breakdown -->
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-success mb-3">Prediction Confidence</h5>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ prediction.pass_probability }}%" 
+                                 aria-valuenow="{{ prediction.pass_probability }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                Pass: {{ prediction.pass_probability }}%
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                 style="width: {{ prediction.fail_probability }}%" 
+                                 aria-valuenow="{{ prediction.fail_probability }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                Fail: {{ prediction.fail_probability }}%
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Confidence Interpretation</h6>
+                            {% if prediction.confidence_score > 80 %}
+                                <p class="mb-0">High confidence indicates the model is very certain about this prediction based on the provided data patterns.</p>
+                            {% elif prediction.confidence_score > 60 %}
+                                <p class="mb-0">Medium confidence suggests the model is reasonably certain, but there may be some uncertainty in the prediction.</p>
+                            {% else %}
+                                <p class="mb-0">Low confidence indicates the model is less certain about this prediction. Consider providing more detailed information.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grade Analysis -->
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="text-warning mb-3">Grade Analysis</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Grade</th>
+                                        <th>Range</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="{{ 'table-success' if prediction.predicted_grade == 'A+' else '' }}">
+                                        <td><strong>A+</strong></td>
+                                        <td>90-100</td>
+                                        <td>Excellent</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'A+' else '' }}</td>
+                                    </tr>
+                                    <tr class="{{ 'table-success' if prediction.predicted_grade == 'A' else '' }}">
+                                        <td><strong>A</strong></td>
+                                        <td>80-89</td>
+                                        <td>Very Good</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'A' else '' }}</td>
+                                    </tr>
+                                    <tr class="{{ 'table-info' if prediction.predicted_grade == 'B+' else '' }}">
+                                        <td><strong>B+</strong></td>
+                                        <td>70-79</td>
+                                        <td>Good</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'B+' else '' }}</td>
+                                    </tr>
+                                    <tr class="{{ 'table-warning' if prediction.predicted_grade == 'B' else '' }}">
+                                        <td><strong>B</strong></td>
+                                        <td>60-69</td>
+                                        <td>Satisfactory</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'B' else '' }}</td>
+                                    </tr>
+                                    <tr class="{{ 'table-warning' if prediction.predicted_grade == 'C' else '' }}">
+                                        <td><strong>C</strong></td>
+                                        <td>50-59</td>
+                                        <td>Passing</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'C' else '' }}</td>
+                                    </tr>
+                                    <tr class="{{ 'table-danger' if prediction.predicted_grade == 'F' else '' }}">
+                                        <td><strong>F</strong></td>
+                                        <td>Below 50</td>
+                                        <td>Failing</td>
+                                        <td>{{ 'Current' if prediction.predicted_grade == 'F' else '' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Performance Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Assignment', 'Midterm', 'Final Exam'],
+            datasets: [{
+                label: 'Marks (%)',
+                data: [
+                    {{ student_data.assignment_marks or 0 }},
+                    {{ student_data.midterm_marks or 0 }},
+                    {{ student_data.final_exam_marks or 0 }}
+                ],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Add animation to result circle
+    const resultCircle = document.querySelector('.result-circle');
+    if (resultCircle) {
+        resultCircle.style.animation = 'pulse 2s infinite';
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-circle {
+    transition: transform 0.3s ease;
+}
+
+.result-circle:hover {
+    transform: scale(1.1);
+}
+
+.progress {
+    border-radius: 15px;
+}
+
+.progress-bar {
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.table-success {
+    background-color: #d4edda !important;
+}
+
+.table-info {
+    background-color: #d1ecf1 !important;
+}
+
+.table-warning {
+    background-color: #fff3cd !important;
+}
+
+.table-danger {
+    background-color: #f8d7da !important;
+}
+</style>
+{% endblock %} 

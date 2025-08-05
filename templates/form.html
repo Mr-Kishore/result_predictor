@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+
+{% block title %}Predict Result - Student Result Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">
+                    <i class="fas fa-calculator me-2"></i>Student Result Prediction
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" id="prediction-form">
+                    <!-- Student Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Student Information
+                            </h4>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="student_id" class="form-label">Student ID *</label>
+                            <input type="text" class="form-control" id="student_id" name="student_id" 
+                                   value="{{ student_data.student_id or '' }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ student_data.name or '' }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select class="form-select" id="gender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male" {{ 'selected' if student_data.gender == 'Male' else '' }}>Male</option>
+                                <option value="Female" {{ 'selected' if student_data.gender == 'Female' else '' }}>Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age" name="age" 
+                                   value="{{ student_data.age or '' }}" min="16" max="30">
+                        </div>
+                    </div>
+
+                    <!-- Academic Performance -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="text-success mb-3">
+                                <i class="fas fa-graduation-cap me-2"></i>Academic Performance
+                            </h4>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="attendance_percentage" class="form-label">Attendance Percentage *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="attendance_percentage" name="attendance_percentage" 
+                                       value="{{ student_data.attendance_percentage or '' }}" min="0" max="100" step="0.1" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="form-text">Percentage of classes attended (0-100)</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="assignment_marks" class="form-label">Assignment Marks *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="assignment_marks" name="assignment_marks" 
+                                       value="{{ student_data.assignment_marks or '' }}" min="0" max="100" step="0.1" required>
+                                <span class="input-group-text">/100</span>
+                            </div>
+                            <div class="form-text">Average marks in assignments</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="midterm_marks" class="form-label">Midterm Marks *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="midterm_marks" name="midterm_marks" 
+                                       value="{{ student_data.midterm_marks or '' }}" min="0" max="100" step="0.1" required>
+                                <span class="input-group-text">/100</span>
+                            </div>
+                            <div class="form-text">Marks obtained in midterm exam</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="final_exam_marks" class="form-label">Final Exam Marks *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="final_exam_marks" name="final_exam_marks" 
+                                       value="{{ student_data.final_exam_marks or '' }}" min="0" max="100" step="0.1" required>
+                                <span class="input-group-text">/100</span>
+                            </div>
+                            <div class="form-text">Marks obtained in final exam</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="study_hours_per_day" class="form-label">Study Hours per Day *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="study_hours_per_day" name="study_hours_per_day" 
+                                       value="{{ student_data.study_hours_per_day or '' }}" min="0" max="24" step="0.5" required>
+                                <span class="input-group-text">hours</span>
+                            </div>
+                            <div class="form-text">Average study hours per day</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="previous_semester_gpa" class="form-label">Previous Semester GPA *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="previous_semester_gpa" name="previous_semester_gpa" 
+                                       value="{{ student_data.previous_semester_gpa or '' }}" min="0" max="4" step="0.01" required>
+                                <span class="input-group-text">/4.0</span>
+                            </div>
+                            <div class="form-text">GPA from previous semester</div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="text-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Additional Information
+                            </h4>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="extracurricular_activities" class="form-label">Extracurricular Activities</label>
+                            <select class="form-select" id="extracurricular_activities" name="extracurricular_activities">
+                                <option value="0" {{ 'selected' if student_data.extracurricular_activities == '0' else '' }}>None</option>
+                                <option value="1" {{ 'selected' if student_data.extracurricular_activities == '1' else '' }}>1 Activity</option>
+                                <option value="2" {{ 'selected' if student_data.extracurricular_activities == '2' else '' }}>2 Activities</option>
+                                <option value="3" {{ 'selected' if student_data.extracurricular_activities == '3' else '' }}>3+ Activities</option>
+                            </select>
+                            <div class="form-text">Number of extracurricular activities</div>
+                        </div>
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="text-warning mb-3">
+                                <i class="fas fa-brain me-2"></i>Machine Learning Model
+                            </h4>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="model" class="form-label">Select Model</label>
+                            <select class="form-select" id="model" name="model">
+                                <option value="best">Best Model (Auto-selected)</option>
+                                <option value="logistic_regression">Logistic Regression</option>
+                                <option value="random_forest">Random Forest</option>
+                                <option value="xgboost">XGBoost</option>
+                                <option value="gradient_boosting">Gradient Boosting</option>
+                                <option value="svm">Support Vector Machine</option>
+                                <option value="neural_network">Neural Network</option>
+                            </select>
+                            <div class="form-text">Choose the ML algorithm for prediction</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-lightbulb me-2"></i>Model Information
+                                    </h6>
+                                    <p class="card-text small">
+                                        <strong>Best Model:</strong> Automatically selects the highest performing model based on cross-validation scores.<br>
+                                        <strong>Other Models:</strong> Use specific algorithms for comparison or analysis.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-magic me-2"></i>Predict Result
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle me-2"></i>Prediction Form Help
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-asterisk me-2 text-danger"></i>Required Fields</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check me-2 text-success"></i>Student ID</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Attendance Percentage</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Assignment Marks</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Midterm Marks</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Final Exam Marks</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Study Hours per Day</li>
+                            <li><i class="fas fa-check me-2 text-success"></i>Previous Semester GPA</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info me-2 text-info"></i>Optional Fields</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-user me-2"></i>Full Name</li>
+                            <li><i class="fas fa-venus-mars me-2"></i>Gender</li>
+                            <li><i class="fas fa-birthday-cake me-2"></i>Age</li>
+                            <li><i class="fas fa-running me-2"></i>Extracurricular Activities</li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Tips for Better Predictions</h6>
+                    <ul class="mb-0">
+                        <li>Provide accurate and up-to-date information</li>
+                        <li>Higher attendance and study hours typically lead to better results</li>
+                        <li>Consistent performance across assignments and exams is important</li>
+                        <li>Previous GPA is a strong indicator of future performance</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('chatbot_route') }}" class="btn btn-primary">
+                    <i class="fas fa-robot me-2"></i>Ask Chatbot
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation and enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('prediction-form');
+    
+    // Real-time validation feedback
+    const requiredFields = ['student_id', 'attendance_percentage', 'assignment_marks', 
+                           'midterm_marks', 'final_exam_marks', 'study_hours_per_day', 'previous_semester_gpa'];
+    
+    requiredFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            field.addEventListener('blur', function() {
+                validateRequiredField(this);
+            });
+            field.addEventListener('input', function() {
+                clearFieldError(this);
+            });
+        }
+    });
+    
+    // Auto-calculate average marks
+    const marksFields = ['assignment_marks', 'midterm_marks', 'final_exam_marks'];
+    marksFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            field.addEventListener('input', calculateAverageMarks);
+        }
+    });
+    
+    // Form submission enhancement
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            showAlert('Please fill in all required fields correctly.', 'danger');
+        }
+    });
+});
+
+function validateRequiredField(field) {
+    const value = field.value.trim();
+    const fieldName = field.name;
+    
+    if (!value) {
+        showFieldError(field, 'This field is required');
+        return false;
+    }
+    
+    // Numeric validation
+    if (['attendance_percentage', 'assignment_marks', 'midterm_marks', 'final_exam_marks'].includes(fieldName)) {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+            showFieldError(field, 'Value must be between 0 and 100');
+            return false;
+        }
+    }
+    
+    if (fieldName === 'study_hours_per_day') {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue) || numValue < 0 || numValue > 24) {
+            showFieldError(field, 'Study hours must be between 0 and 24');
+            return false;
+        }
+    }
+    
+    if (fieldName === 'previous_semester_gpa') {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue) || numValue < 0 || numValue > 4) {
+            showFieldError(field, 'GPA must be between 0 and 4');
+            return false;
+        }
+    }
+    
+    clearFieldError(field);
+    return true;
+}
+
+function validateForm() {
+    const requiredFields = ['student_id', 'attendance_percentage', 'assignment_marks', 
+                           'midterm_marks', 'final_exam_marks', 'study_hours_per_day', 'previous_semester_gpa'];
+    
+    let isValid = true;
+    requiredFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field && !validateRequiredField(field)) {
+            isValid = false;
+        }
+    });
+    
+    return isValid;
+}
+
+function showFieldError(field, message) {
+    clearFieldError(field);
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback d-block';
+    errorDiv.textContent = message;
+    
+    field.classList.add('is-invalid');
+    field.parentNode.appendChild(errorDiv);
+}
+
+function clearFieldError(field) {
+    field.classList.remove('is-invalid');
+    const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+}
+
+function showAlert(message, type) {
+    // Remove existing alerts
+    const existingAlert = document.querySelector('.alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    // Create new alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at the top of the form
+    const form = document.getElementById('prediction-form');
+    form.insertBefore(alertDiv, form.firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function calculateAverageMarks() {
+    const assignmentMarks = parseFloat(document.getElementById('assignment_marks').value) || 0;
+    const midtermMarks = parseFloat(document.getElementById('midterm_marks').value) || 0;
+    const finalMarks = parseFloat(document.getElementById('final_exam_marks').value) || 0;
+    
+    if (assignmentMarks > 0 || midtermMarks > 0 || finalMarks > 0) {
+        const average = (assignmentMarks + midtermMarks + finalMarks) / 3;
+        
+        // Show average in a tooltip or info box
+        let averageInfo = document.getElementById('average-marks-info');
+        if (!averageInfo) {
+            averageInfo = document.createElement('div');
+            averageInfo.id = 'average-marks-info';
+            averageInfo.className = 'alert alert-info mt-2';
+            document.getElementById('final_exam_marks').parentNode.appendChild(averageInfo);
+        }
+        averageInfo.innerHTML = `<i class="fas fa-calculator me-2"></i>Average Marks: <strong>${average.toFixed(1)}/100</strong>`;
+    }
+}
+</script>
+{% endblock %} 

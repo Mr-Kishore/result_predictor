@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% block title %}ML Models - Student Result Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>Machine Learning Models
+                </h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Compare the performance of different machine learning algorithms used in our prediction system.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Performance Comparison -->
+{% if model_info and model_info.success %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Model Performance Comparison
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-trophy me-2 text-warning"></i>Best Model</h5>
+                        <div class="alert alert-success">
+                            <h6 class="mb-2">{{ model_info.best_model }}</h6>
+                            <p class="mb-1"><strong>Cross-validation Score:</strong> {{ "%.2f"|format(model_info.best_score * 100) }}%</p>
+                            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">Currently Active</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-list me-2 text-info"></i>Available Models</h5>
+                        <div class="row">
+                            {% for model_name in model_info.available_models %}
+                            <div class="col-6 mb-2">
+                                <span class="badge bg-primary">{{ model_name.replace('_', ' ').title() }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Table -->
+                {% if model_info.model_comparison %}
+                <div class="table-responsive mt-4">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Model</th>
+                                <th>Accuracy</th>
+                                <th>CV Score</th>
+                                <th>Performance</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model_name, metrics in model_info.model_comparison.items() %}
+                            <tr class="{{ 'table-success' if model_name == 'best' else '' }}">
+                                <td>
+                                    <strong>{{ model_name.replace('_', ' ').title() }}</strong>
+                                    {% if model_name == 'best' %}
+                                        <i class="fas fa-crown text-warning ms-2"></i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: {{ metrics.accuracy * 100 }}%" 
+                                             aria-valuenow="{{ metrics.accuracy * 100 }}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            {{ "%.1f"|format(metrics.accuracy * 100) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: {{ metrics.cv_score * 100 }}%" 
+                                             aria-valuenow="{{ metrics.cv_score * 100 }}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            {{ "%.1f"|format(metrics.cv_score * 100) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if metrics.accuracy > 0.85 %}
+                                        <span class="badge bg-success">Excellent</span>
+                                    {% elif metrics.accuracy > 0.75 %}
+                                        <span class="badge bg-warning">Good</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Fair</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if model_name == 'best' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Available</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Feature Importance -->
+{% if feature_importance and feature_importance.success %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Feature Importance Analysis
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5><i class="fas fa-chart-pie me-2 text-primary"></i>Feature Importance Chart</h5>
+                        <canvas id="featureImportanceChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-star me-2 text-warning"></i>Top Features</h5>
+                        <div class="list-group">
+                            {% for feature in feature_importance.top_features %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ feature.replace('_', ' ').title() }}
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ "%.3f"|format(feature_importance.feature_importance[feature]) }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fas fa-info-circle me-2"></i>Interpretation</h6>
+                            <p class="mb-0 small">
+                                Higher values indicate features that have more influence on the prediction outcome. 
+                                Features with higher importance contribute more to the model's decision-making process.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Model Details -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Model Details
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-cogs me-2 text-primary"></i>Algorithm Types</h5>
+                        <div class="accordion" id="modelAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#logisticRegression">
+                                        <i class="fas fa-chart-line me-2"></i>Logistic Regression
+                                    </button>
+                                </h2>
+                                <div id="logisticRegression" class="accordion-collapse collapse show" data-bs-parent="#modelAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Type:</strong> Linear Classification</p>
+                                        <p><strong>Pros:</strong> Interpretable, fast, good baseline</p>
+                                        <p><strong>Cons:</strong> Assumes linear relationships</p>
+                                        <p><strong>Best for:</strong> Simple patterns, interpretability</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#randomForest">
+                                        <i class="fas fa-tree me-2"></i>Random Forest
+                                    </button>
+                                </h2>
+                                <div id="randomForest" class="accordion-collapse collapse" data-bs-parent="#modelAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Type:</strong> Ensemble Learning</p>
+                                        <p><strong>Pros:</strong> Robust, handles non-linear data, feature importance</p>
+                                        <p><strong>Cons:</strong> Less interpretable, slower</p>
+                                        <p><strong>Best for:</strong> Complex patterns, feature selection</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#xgboost">
+                                        <i class="fas fa-rocket me-2"></i>XGBoost
+                                    </button>
+                                </h2>
+                                <div id="xgboost" class="accordion-collapse collapse" data-bs-parent="#modelAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Type:</strong> Gradient Boosting</p>
+                                        <p><strong>Pros:</strong> High performance, handles missing data</p>
+                                        <p><strong>Cons:</strong> Complex, requires tuning</p>
+                                        <p><strong>Best for:</strong> High accuracy, competition settings</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#svm">
+                                        <i class="fas fa-shield-alt me-2"></i>Support Vector Machine
+                                    </button>
+                                </h2>
+                                <div id="svm" class="accordion-collapse collapse" data-bs-parent="#modelAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Type:</strong> Kernel-based Classification</p>
+                                        <p><strong>Pros:</strong> Effective in high dimensions, versatile</p>
+                                        <p><strong>Cons:</strong> Sensitive to scaling, slower</p>
+                                        <p><strong>Best for:</strong> Complex boundaries, high-dimensional data</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#neuralNetwork">
+                                        <i class="fas fa-network-wired me-2"></i>Neural Network
+                                    </button>
+                                </h2>
+                                <div id="neuralNetwork" class="accordion-collapse collapse" data-bs-parent="#modelAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Type:</strong> Deep Learning</p>
+                                        <p><strong>Pros:</strong> Can learn complex patterns, flexible</p>
+                                        <p><strong>Cons:</strong> Requires more data, black box</p>
+                                        <p><strong>Best for:</strong> Complex non-linear relationships</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-chart-area me-2 text-success"></i>Model Selection Criteria</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-check-circle me-2 text-success"></i>Selection Process</h6>
+                                <ol>
+                                    <li><strong>Cross-validation:</strong> 5-fold CV to assess performance</li>
+                                    <li><strong>Hyperparameter tuning:</strong> Grid search for optimal parameters</li>
+                                    <li><strong>Performance metrics:</strong> Accuracy, precision, recall</li>
+                                    <li><strong>Computational efficiency:</strong> Training and prediction speed</li>
+                                    <li><strong>Interpretability:</strong> Balance between accuracy and explainability</li>
+                                </ol>
+                                
+                                <hr>
+                                
+                                <h6><i class="fas fa-lightbulb me-2 text-warning"></i>Best Practices</h6>
+                                <ul>
+                                    <li>Regular model retraining with new data</li>
+                                    <li>Feature engineering and selection</li>
+                                    <li>Ensemble methods for improved performance</li>
+                                    <li>Regular performance monitoring</li>
+                                    <li>Model versioning and documentation</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Note</h6>
+                            <p class="mb-0">
+                                Model performance may vary based on data quality, feature engineering, and the specific characteristics of your dataset. 
+                                Regular model evaluation and updates are recommended.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-calculator me-2"></i>Try Prediction
+        </a>
+        <a href="{{ url_for('chatbot_route') }}" class="btn btn-info btn-lg ms-2">
+            <i class="fas fa-robot me-2"></i>Ask About Models
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg ms-2">
+            <i class="fas fa-home me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if feature_importance and feature_importance.success %}
+    // Feature Importance Chart
+    const ctx = document.getElementById('featureImportanceChart').getContext('2d');
+    const featureData = {
+        labels: [
+            {% for feature, importance in feature_importance.feature_importance.items() %}
+            '{{ feature.replace("_", " ").title() }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Feature Importance',
+            data: [
+                {% for feature, importance in feature_importance.feature_importance.items() %}
+                {{ importance }},
+                {% endfor %}
+            ],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)',
+                'rgba(83, 102, 255, 0.8)',
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(199, 199, 199, 1)',
+                'rgba(83, 102, 255, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)'
+            ],
+            borderWidth: 2
+        }]
+    };
+    
+    const featureChart = new Chart(ctx, {
+        type: 'bar',
+        data: featureData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Importance Score'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Features'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Importance: ' + context.parsed.y.toFixed(3);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Add animations to progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e7f3ff;
+    color: var(--primary-color);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    border-radius: 0 !important;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.badge {
+    font-size: 0.8em;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.table-success {
+    background-color: #d4edda !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %} 

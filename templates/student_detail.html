@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Student Details - Student Result Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Student Header -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-gradient-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-0">
+                            <i class="fas fa-user-graduate me-2"></i>
+                            {{ student.name or 'Student' }} (ID: {{ student.student_id }})
+                        </h2>
+                        <p class="mb-0 mt-2 opacity-75">
+                            <i class="fas fa-calendar me-2"></i>
+                            Last Updated: {{ student.timestamp or 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-{{ 'success' if student.predicted_result == 1 else 'danger' }} fs-6">
+                            <i class="fas fa-{{ 'check-circle' if student.predicted_result == 1 else 'times-circle' }} me-2"></i>
+                            {{ 'PASS' if student.predicted_result == 1 else 'FAIL' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Personal Information -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i>Personal Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-2"><strong>Student ID:</strong></p>
+                        <p class="mb-2"><strong>Name:</strong></p>
+                        <p class="mb-2"><strong>Gender:</strong></p>
+                        <p class="mb-2"><strong>Age:</strong></p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-2 text-muted">{{ student.student_id or 'N/A' }}</p>
+                        <p class="mb-2 text-muted">{{ student.name or 'N/A' }}</p>
+                        <p class="mb-2 text-muted">{{ student.gender or 'N/A' }}</p>
+                        <p class="mb-2 text-muted">{{ student.age or 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Performance -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>Academic Performance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-2"><strong>Attendance:</strong></p>
+                        <p class="mb-2"><strong>Assignment:</strong></p>
+                        <p class="mb-2"><strong>Midterm:</strong></p>
+                        <p class="mb-2"><strong>Final Exam:</strong></p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-2 text-muted">{{ student.attendance_percentage or 'N/A' }}%</p>
+                        <p class="mb-2 text-muted">{{ student.assignment_marks or 'N/A' }}/100</p>
+                        <p class="mb-2 text-muted">{{ student.midterm_marks or 'N/A' }}/100</p>
+                        <p class="mb-2 text-muted">{{ student.final_exam_marks or 'N/A' }}/100</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Habits -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>Study Habits
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-2"><strong>Study Hours:</strong></p>
+                        <p class="mb-2"><strong>Previous GPA:</strong></p>
+                        <p class="mb-2"><strong>Activities:</strong></p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-2 text-muted">{{ student.study_hours_per_day or 'N/A' }} hrs/day</p>
+                        <p class="mb-2 text-muted">{{ student.previous_semester_gpa or 'N/A' }}/4.0</p>
+                        <p class="mb-2 text-muted">{{ student.extracurricular_activities or 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Performance Charts -->
+    <div class="col-md-8 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Performance Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Results -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-{{ 'success' if student.predicted_result == 1 else 'danger' }} text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>AI Prediction Results
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <h2 class="text-{{ 'success' if student.predicted_result == 1 else 'danger' }}">
+                        {{ 'PASS' if student.predicted_result == 1 else 'FAIL' }}
+                    </h2>
+                    <p class="text-muted">Predicted Result</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="text-primary">{{ student.predicted_grade or 'N/A' }}</h3>
+                    <p class="text-muted">Predicted Grade</p>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-{{ 'success' if student.predicted_result == 1 else 'danger' }}" 
+                             role="progressbar" 
+                             style="width: {{ (student.confidence_score or 0) * 100 }}%"
+                             aria-valuenow="{{ (student.confidence_score or 0) * 100 }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ "%.1f"|format((student.confidence_score or 0) * 100) }}%
+                        </div>
+                    </div>
+                    <p class="text-muted mt-2">Confidence Score</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-robot me-2"></i>
+                        <strong>Model Used:</strong> {{ student.model_used or 'N/A' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Insights -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Performance Insights
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-line me-2 text-success"></i>Strengths:</h6>
+                        <ul class="list-unstyled">
+                            {% if student.attendance_percentage and student.attendance_percentage >= 85 %}
+                            <li><i class="fas fa-check-circle me-2 text-success"></i>Excellent attendance ({{ student.attendance_percentage }}%)</li>
+                            {% endif %}
+                            {% if student.study_hours_per_day and student.study_hours_per_day >= 3 %}
+                            <li><i class="fas fa-check-circle me-2 text-success"></i>Good study habits ({{ student.study_hours_per_day }} hours/day)</li>
+                            {% endif %}
+                            {% if student.previous_semester_gpa and student.previous_semester_gpa >= 3.0 %}
+                            <li><i class="fas fa-check-circle me-2 text-success"></i>Strong previous performance (GPA: {{ student.previous_semester_gpa }})</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Areas for Improvement:</h6>
+                        <ul class="list-unstyled">
+                            {% if student.attendance_percentage and student.attendance_percentage < 75 %}
+                            <li><i class="fas fa-times-circle me-2 text-danger"></i>Low attendance ({{ student.attendance_percentage }}%)</li>
+                            {% endif %}
+                            {% if student.study_hours_per_day and student.study_hours_per_day < 2 %}
+                            <li><i class="fas fa-times-circle me-2 text-danger"></i>Insufficient study time ({{ student.study_hours_per_day }} hours/day)</li>
+                            {% endif %}
+                            {% if student.final_exam_marks and student.final_exam_marks < 60 %}
+                            <li><i class="fas fa-times-circle me-2 text-danger"></i>Low final exam performance ({{ student.final_exam_marks }}/100)</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('search_student') }}" class="btn btn-primary">
+            <i class="fas fa-search me-2"></i>Search Another Student
+        </a>
+        <a href="{{ url_for('predict') }}" class="btn btn-success">
+            <i class="fas fa-calculator me-2"></i>Make New Prediction
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Performance Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    
+    const performanceData = {
+        labels: ['Assignment', 'Midterm', 'Final Exam'],
+        datasets: [{
+            label: 'Marks (%)',
+            data: [
+                {{ student.assignment_marks or 0 }},
+                {{ student.midterm_marks or 0 }},
+                {{ student.final_exam_marks or 0 }}
+            ],
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(255, 99, 132, 0.2)'
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 2
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: performanceData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 
