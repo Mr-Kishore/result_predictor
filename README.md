@@ -26,7 +26,7 @@ An advanced machine learning system to predict student academic performance usin
 1. **Clone the repository**:
 ```bash
 git clone <repository-url>
-cd REsult
+cd result_predictor
 ```
 **Creating a venv**:
 ```bash
