@@ -521,18 +521,21 @@ async function getFeatureImportance(modelName = 'best') {
 // Global error handler
 window.addEventListener('error', function(event) {
     console.error('Global error:', event.error);
-    showAlert('An unexpected error occurred', 'danger');
+    // Only show alert for critical errors, not all errors
+    if (event.error && event.error.message && !event.error.message.includes('refreshData') && !event.error.message.includes('viewDataPreview') && !event.error.message.includes('downloadSample')) {
+        showAlert('An unexpected error occurred', 'danger');
+    }
 });
 
-// Service Worker registration (for PWA features)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-                console.log('SW registered: ', registration);
-            })
-            .catch(function(registrationError) {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-} 
+// Service Worker registration (for PWA features) - disabled to prevent 404 errors
+// if ('serviceWorker' in navigator) {
+//     window.addEventListener('load', function() {
+//         navigator.serviceWorker.register('/sw.js')
+//             .then(function(registration) {
+//                 console.log('SW registered: ', registration);
+//             })
+//             .catch(function(registrationError) {
+//                 console.log('SW registration failed: ', registrationError);
+//             });
+//     });
+// } 

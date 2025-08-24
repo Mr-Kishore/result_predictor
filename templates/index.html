@@ -4,71 +4,83 @@
 
 {% block content %}
 <div class="row">
-    <!-- Welcome Section -->
+    <!-- Hero Section with Background Image and Overlay -->
     <div class="col-12">
-        <div class="jumbotron bg-gradient-primary text-white p-5 rounded-3 mb-4">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="display-4 fw-bold">
-                        <i class="fas fa-graduation-cap me-3"></i>
-                        Student Result Predictor
-                    </h1>
-                    <p class="lead mb-4">
-                        Advanced machine learning system to predict student academic performance using multiple algorithms and comprehensive data analysis.
-                    </p>
-                    <div class="d-flex gap-3">
-                        <a href="{{ url_for('predict') }}" class="btn btn-light btn-lg">
-                            <i class="fas fa-calculator me-2"></i>Start Prediction
-                        </a>
-                        <a href="{{ url_for('upload') }}" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-upload me-2"></i>Upload Data
-                        </a>
+        <div class="hero-section position-relative mb-4 rounded-3 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1200&q=80" class="w-100 h-100 object-fit-cover hero-bg" alt="Students" style="min-height: 320px; max-height: 420px; filter: brightness(0.5);">
+            <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="z-index:2;">
+                <div class="container text-white py-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeInDown">
+                                <i class="fas fa-graduation-cap me-3 pulse"></i>
+                                Student Result Predictor
+                            </h1>
+                            <p class="lead mb-4 animate__animated animate__fadeInUp">
+                                Advanced machine learning system to predict student academic performance using multiple algorithms and comprehensive data analysis.
+                            </p>
+                            <div class="d-flex gap-3 animate__animated animate__fadeInUp animate__delay-1s">
+                                <a href="{{ url_for('main.predict') }}" class="btn btn-light btn-lg shadow">
+                                    <i class="fas fa-calculator me-2"></i>Start Prediction
+                                </a>
+                                <a href="{{ url_for('main.upload') }}" class="btn btn-outline-light btn-lg shadow">
+                                    <i class="fas fa-upload me-2"></i>Upload Data
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-none d-md-block">
+                            <i class="fas fa-brain fa-7x opacity-75 animate__animated animate__zoomIn"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4 text-center">
-                    <i class="fas fa-brain fa-6x opacity-75"></i>
-                </div>
             </div>
+            <!-- Floating Help Button -->
+            <a href="{{ url_for('main.chatbot_route') }}" class="btn btn-info btn-lg rounded-circle position-absolute end-0 bottom-0 m-4 shadow-lg animate__animated animate__bounceIn" style="z-index:3; width:64px; height:64px; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-robot fa-lg"></i>
+            </a>
         </div>
     </div>
 </div>
 
-<!-- Statistics Cards -->
+<!-- Statistics Cards with Animation -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white h-100" style="cursor: pointer;" onclick="window.location.href='{{ url_for('search_student') }}'">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-primary text-white h-100 shadow-custom animate__animated animate__fadeInUp animate__delay-1s" data-href="{{ url_for('main.search_student') }}">
             <div class="card-body text-center">
-                <i class="fas fa-users fa-3x mb-3 opacity-75"></i>
+                <i class="fas fa-users fa-3x mb-3 opacity-75 pulse"></i>
                 <h3 class="card-title">{{ stats.total_records or 0 }}</h3>
                 <p class="card-text">Total Students</p>
-                <small class="opacity-75">Click to search students</small>
+                <small class="text-light">Click to search students</small>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white h-100">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-success text-white h-100 shadow-custom animate__animated animate__fadeInUp animate__delay-2s clickable-stat" data-stat-type="pass-rate" style="cursor: pointer;">
             <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-3x mb-3 opacity-75"></i>
+                <i class="fas fa-chart-line fa-3x mb-3 opacity-75 pulse"></i>
                 <h3 class="card-title">{{ "%.1f"|format(stats.pass_rate or 0) }}%</h3>
                 <p class="card-text">Pass Rate</p>
+                <small class="text-light">Click for details</small>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-info text-white h-100">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-info text-white h-100 shadow-custom animate__animated animate__fadeInUp animate__delay-2s clickable-stat" data-stat-type="attendance" style="cursor: pointer;">
             <div class="card-body text-center">
-                <i class="fas fa-clock fa-3x mb-3 opacity-75"></i>
+                <i class="fas fa-clock fa-3x mb-3 opacity-75 pulse"></i>
                 <h3 class="card-title">{{ "%.1f"|format(stats.average_attendance or 0) }}%</h3>
                 <p class="card-text">Avg Attendance</p>
+                <small class="text-light">Click for breakdown</small>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-white h-100">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-warning text-white h-100 shadow-custom animate__animated animate__fadeInUp animate__delay-3s clickable-stat" data-stat-type="marks" style="cursor: pointer;">
             <div class="card-body text-center">
-                <i class="fas fa-star fa-3x mb-3 opacity-75"></i>
+                <i class="fas fa-star fa-3x mb-3 opacity-75 pulse"></i>
                 <h3 class="card-title">{{ "%.1f"|format(stats.average_marks or 0) }}</h3>
                 <p class="card-text">Avg Marks</p>
+                <small class="text-light">Click for distribution</small>
             </div>
         </div>
     </div>
@@ -90,7 +102,7 @@
                 </div>
                 <h5 class="card-title">Single Prediction</h5>
                 <p class="card-text">Enter individual student data and get instant predictions using our advanced ML models.</p>
-                <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                <a href="{{ url_for('main.predict') }}" class="btn btn-primary">
                     <i class="fas fa-arrow-right me-2"></i>Start Prediction
                 </a>
             </div>
@@ -105,7 +117,7 @@
                 </div>
                 <h5 class="card-title">Batch Upload</h5>
                 <p class="card-text">Upload Excel files with multiple student records for batch processing and predictions.</p>
-                <a href="{{ url_for('upload') }}" class="btn btn-success">
+                <a href="{{ url_for('main.upload') }}" class="btn btn-success">
                     <i class="fas fa-arrow-right me-2"></i>Upload Files
                 </a>
             </div>
@@ -120,7 +132,7 @@
                 </div>
                 <h5 class="card-title">AI Assistant</h5>
                 <p class="card-text">Get help, ask questions, and understand how our prediction system works.</p>
-                <a href="{{ url_for('chatbot_route') }}" class="btn btn-info">
+                <a href="{{ url_for('main.chatbot_route') }}" class="btn btn-info">
                     <i class="fas fa-arrow-right me-2"></i>Chat Now
                 </a>
             </div>
@@ -185,7 +197,7 @@
                 </div>
                 
                 <div class="text-center mt-3">
-                    <a href="{{ url_for('models') }}" class="btn btn-outline-primary">
+                    <a href="{{ url_for('main.models') }}" class="btn btn-outline-primary">
                         <i class="fas fa-chart-line me-2"></i>View Detailed Analysis
                     </a>
                 </div>
@@ -267,7 +279,7 @@
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>{{ stats.recent_entries }}</strong> new student records added in the last 7 days.
                 </div>
-                <a href="{{ url_for('data') }}" class="btn btn-outline-primary">
+                <a href="{{ url_for('main.data') }}" class="btn btn-outline-primary">
                     <i class="fas fa-database me-2"></i>View All Data
                 </a>
             </div>
@@ -278,21 +290,461 @@
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-.bg-gradient-primary {
+.hero-section {
+    min-height: 320px;
+    max-height: 420px;
     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    position: relative;
 }
-
-.card {
-    transition: transform 0.2s ease-in-out;
+.hero-bg {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
-
-.card:hover {
-    transform: translateY(-5px);
+.hero-overlay {
+    background: linear-gradient(90deg, rgba(0,123,255,0.8) 0%, rgba(0,86,179,0.7) 100%);
+    min-height: 320px;
+    max-height: 420px;
 }
-
-.opacity-75 {
-    opacity: 0.75;
+.pulse {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+.stat-card {
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.10);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 1.5rem 2rem rgba(0,0,0,0.15);
+}
+.shadow-custom {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.10);
+}
+.carousel-item {
+    min-height: 120px;
 }
 </style>
-{% endblock %} 
+{% endblock %}
+
+<!-- Statistics Detail Modal -->
+<div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statsModalLabel">Detailed Statistics</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="statsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading detailed statistics...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Dark mode toggle
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+}
+
+// Handle clickable cards
+document.addEventListener('DOMContentLoaded', function() {
+    const clickableCards = document.querySelectorAll('[data-href]');
+    const clickableStats = document.querySelectorAll('.clickable-stat');
+    
+    // Handle regular navigation cards
+    clickableCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+    
+    // Handle statistics cards
+    clickableStats.forEach(card => {
+        card.addEventListener('click', function() {
+            const statType = this.getAttribute('data-stat-type');
+            showDetailedStats(statType);
+        });
+    });
+});
+
+// Show detailed statistics in modal
+function showDetailedStats(statType) {
+    const modal = new bootstrap.Modal(document.getElementById('statsModal'));
+    const modalTitle = document.getElementById('statsModalLabel');
+    const statsContent = document.getElementById('statsContent');
+    
+    // Set modal title
+    const titles = {
+        'pass-rate': 'Pass Rate Details',
+        'attendance': 'Attendance Breakdown',
+        'marks': 'Marks Distribution'
+    };
+    modalTitle.textContent = titles[statType] || 'Detailed Statistics';
+    
+    // Show loading
+    statsContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading detailed statistics...</p>
+        </div>
+    `;
+    
+    // Show modal
+    modal.show();
+    
+    // Fetch data
+    console.log(`Fetching: /api/detailed-stats/${statType}`);
+    fetch(`/api/detailed-stats/${statType}`)
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Response:', data);
+            if (data.success) {
+                renderDetailedStats(statType, data.data);
+            } else {
+                statsContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading statistics: ${data.message}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            statsContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading statistics: ${error.message}
+                    <br><small>Check browser console for details</small>
+                </div>
+            `;
+        });
+}
+
+// Render detailed statistics based on type
+function renderDetailedStats(statType, data) {
+    const statsContent = document.getElementById('statsContent');
+    
+    switch(statType) {
+        case 'pass-rate':
+            renderPassRateStats(data);
+            break;
+        case 'attendance':
+            renderAttendanceStats(data);
+            break;
+        case 'marks':
+            renderMarksStats(data);
+            break;
+    }
+}
+
+// Render pass rate statistics
+function renderPassRateStats(data) {
+    const statsContent = document.getElementById('statsContent');
+    
+    const html = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Passed Students (${data.pass_count})</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        ${data.passed_students.length > 0 ? 
+                            data.passed_students.map(student => `
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <div>
+                                        <strong>${student.student_id}</strong>
+                                        ${student.name !== 'N/A' ? `<br><small class="text-muted">${student.name}</small>` : ''}
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success">${student.predicted_grade}</span>
+                                        <br><small class="text-muted">${(student.confidence_score * 100).toFixed(1)}% confidence</small>
+                                    </div>
+                                </div>
+                            `).join('') : 
+                            '<p class="text-muted">No passed students found.</p>'
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-times-circle me-2"></i>Failed Students (${data.fail_count})</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        ${data.failed_students.length > 0 ? 
+                            data.failed_students.map(student => `
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <div>
+                                        <strong>${student.student_id}</strong>
+                                        ${student.name !== 'N/A' ? `<br><small class="text-muted">${student.name}</small>` : ''}
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-danger">${student.predicted_grade}</span>
+                                        <br><small class="text-muted">${(student.confidence_score * 100).toFixed(1)}% confidence</small>
+                                    </div>
+                                </div>
+                            `).join('') : 
+                            '<p class="text-muted">No failed students found.</p>'
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>Overall Pass Rate: <span class="text-success">${data.pass_rate.toFixed(1)}%</span></h4>
+                        <div class="progress mt-3" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: ${data.pass_rate}%">
+                                ${data.pass_count} Passed
+                            </div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: ${100 - data.pass_rate}%">
+                                ${data.fail_count} Failed
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    statsContent.innerHTML = html;
+}
+
+// Render attendance statistics
+function renderAttendanceStats(data) {
+    const statsContent = document.getElementById('statsContent');
+    
+    const html = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Attendance Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceChart" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Attendance Ranges</h5>
+                    </div>
+                    <div class="card-body">
+                        ${Object.entries(data.attendance_ranges).map(([range, count]) => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>${range}</span>
+                                <div>
+                                    <span class="badge bg-primary">${count} students</span>
+                                    <small class="text-muted">(${((count / data.total_students) * 100).toFixed(1)}%)</small>
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar" style="width: ${(count / data.total_students) * 100}%"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>Average Attendance: <span class="text-info">${data.average_attendance.toFixed(1)}%</span></h4>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h5>Regular Attendees (≥75%)</h5>
+                                        <h3>${data.present_count}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <h5>Poor Attendance (<75%)</h5>
+                                        <h3>${data.absent_count}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    statsContent.innerHTML = html;
+    
+    // Create pie chart
+    setTimeout(() => {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Regular (≥75%)', 'Poor (<75%)'],
+                datasets: [{
+                    data: [data.present_count, data.absent_count],
+                    backgroundColor: ['#28a745', '#ffc107'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }, 100);
+}
+
+// Render marks statistics
+function renderMarksStats(data) {
+    const statsContent = document.getElementById('statsContent');
+    
+    const html = `
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Grade Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="marksChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-book me-2"></i>Subject Averages</h5>
+                    </div>
+                    <div class="card-body">
+                        ${Object.entries(data.subject_averages).map(([subject, avg]) => `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>${subject}</span>
+                                <span class="badge bg-info">${avg.toFixed(1)}</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-info" style="width: ${avg}%"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center mb-4">Overall Average: <span class="text-warning">${data.average_marks.toFixed(1)}</span></h4>
+                        <div class="row">
+                            ${Object.entries(data.grade_distribution).map(([grade, count]) => `
+                                <div class="col-md-2 mb-3">
+                                    <div class="card text-center ${getGradeCardClass(grade)}">
+                                        <div class="card-body">
+                                            <h5>${grade.split(' ')[0]}</h5>
+                                            <h3>${count}</h3>
+                                            <small>${((count / data.total_students) * 100).toFixed(1)}%</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    statsContent.innerHTML = html;
+    
+    // Create bar chart
+    setTimeout(() => {
+        const ctx = document.getElementById('marksChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data.grade_distribution),
+                datasets: [{
+                    label: 'Number of Students',
+                    data: Object.values(data.grade_distribution),
+                    backgroundColor: ['#28a745', '#20c997', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }, 100);
+}
+
+// Helper function to get card class based on grade
+function getGradeCardClass(grade) {
+    if (grade.includes('A+')) return 'bg-success text-white';
+    if (grade.includes('A')) return 'bg-info text-white';
+    if (grade.includes('B+')) return 'bg-primary text-white';
+    if (grade.includes('B')) return 'bg-warning text-white';
+    if (grade.includes('C')) return 'bg-secondary text-white';
+    return 'bg-danger text-white';
+}
+</script>
+{% endblock %}

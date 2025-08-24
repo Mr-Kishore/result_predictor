@@ -119,16 +119,16 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ url_for('predict') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ url_for('main.predict') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-calculator me-2"></i>Make Prediction
                     </a>
-                    <a href="{{ url_for('upload') }}" class="btn btn-success btn-sm">
+                    <a href="{{ url_for('main.upload') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-upload me-2"></i>Upload Data
                     </a>
-                    <a href="{{ url_for('models') }}" class="btn btn-info btn-sm">
+                    <a href="{{ url_for('main.models') }}" class="btn btn-info btn-sm">
                         <i class="fas fa-brain me-2"></i>View Models
                     </a>
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-home me-2"></i>Back to Home
                     </a>
                 </div>

@@ -320,7 +320,163 @@ class ExcelHandler:
                 'average_marks': 0,
                 'recent_entries': 0
             }
-    
+
+    def get_detailed_pass_rate_stats(self):
+        """Get detailed pass/fail statistics with student details"""
+        try:
+            df = self.load_master_data()
+            
+            if df.empty or 'predicted_result' not in df.columns:
+                return {
+                    'passed_students': [],
+                    'failed_students': [],
+                    'pass_count': 0,
+                    'fail_count': 0,
+                    'pass_rate': 0
+                }
+            
+            # Separate passed and failed students
+            passed_df = df[df['predicted_result'] == 1]
+            failed_df = df[df['predicted_result'] == 0]
+            
+            passed_students = []
+            for _, student in passed_df.iterrows():
+                passed_students.append({
+                    'student_id': student.get('student_id', 'N/A'),
+                    'name': student.get('name', 'N/A'),
+                    'predicted_grade': student.get('predicted_grade', 'N/A'),
+                    'confidence_score': student.get('confidence_score', 0)
+                })
+            
+            failed_students = []
+            for _, student in failed_df.iterrows():
+                failed_students.append({
+                    'student_id': student.get('student_id', 'N/A'),
+                    'name': student.get('name', 'N/A'),
+                    'predicted_grade': student.get('predicted_grade', 'N/A'),
+                    'confidence_score': student.get('confidence_score', 0)
+                })
+            
+            pass_count = len(passed_students)
+            fail_count = len(failed_students)
+            total = pass_count + fail_count
+            pass_rate = (pass_count / total * 100) if total > 0 else 0
+            
+            return {
+                'passed_students': passed_students,
+                'failed_students': failed_students,
+                'pass_count': pass_count,
+                'fail_count': fail_count,
+                'pass_rate': pass_rate
+            }
+            
+        except Exception as e:
+            print(f"Error getting detailed pass rate stats: {e}")
+            return {
+                'passed_students': [],
+                'failed_students': [],
+                'pass_count': 0,
+                'fail_count': 0,
+                'pass_rate': 0
+            }
+
+    def get_detailed_attendance_stats(self):
+        """Get detailed attendance statistics with daily breakdown"""
+        try:
+            df = self.load_master_data()
+            
+            if df.empty or 'attendance_percentage' not in df.columns:
+                return {
+                    'average_attendance': 0,
+                    'present_count': 0,
+                    'absent_count': 0,
+                    'attendance_ranges': {}
+                }
+            
+            avg_attendance = df['attendance_percentage'].mean()
+            
+            # Calculate present/absent based on attendance threshold (75% as present)
+            present_count = len(df[df['attendance_percentage'] >= 75])
+            absent_count = len(df[df['attendance_percentage'] < 75])
+            
+            # Attendance ranges
+            ranges = {
+                '90-100%': len(df[df['attendance_percentage'] >= 90]),
+                '80-89%': len(df[(df['attendance_percentage'] >= 80) & (df['attendance_percentage'] < 90)]),
+                '70-79%': len(df[(df['attendance_percentage'] >= 70) & (df['attendance_percentage'] < 80)]),
+                '60-69%': len(df[(df['attendance_percentage'] >= 60) & (df['attendance_percentage'] < 70)]),
+                'Below 60%': len(df[df['attendance_percentage'] < 60])
+            }
+            
+            return {
+                'average_attendance': avg_attendance,
+                'present_count': present_count,
+                'absent_count': absent_count,
+                'attendance_ranges': ranges,
+                'total_students': len(df)
+            }
+            
+        except Exception as e:
+            print(f"Error getting detailed attendance stats: {e}")
+            return {
+                'average_attendance': 0,
+                'present_count': 0,
+                'absent_count': 0,
+                'attendance_ranges': {},
+                'total_students': 0
+            }
+
+    def get_detailed_marks_stats(self):
+        """Get detailed marks statistics with grade distribution"""
+        try:
+            df = self.load_master_data()
+            
+            mark_columns = ['assignment_marks', 'midterm_marks', 'final_exam_marks']
+            available_marks = [col for col in mark_columns if col in df.columns]
+            
+            if df.empty or not available_marks:
+                return {
+                    'average_marks': 0,
+                    'grade_distribution': {},
+                    'subject_averages': {}
+                }
+            
+            # Calculate overall average
+            df['overall_average'] = df[available_marks].mean(axis=1)
+            avg_marks = df['overall_average'].mean()
+            
+            # Grade distribution
+            grade_distribution = {
+                'A+ (90-100)': len(df[df['overall_average'] >= 90]),
+                'A (80-89)': len(df[(df['overall_average'] >= 80) & (df['overall_average'] < 90)]),
+                'B+ (70-79)': len(df[(df['overall_average'] >= 70) & (df['overall_average'] < 80)]),
+                'B (60-69)': len(df[(df['overall_average'] >= 60) & (df['overall_average'] < 70)]),
+                'C (50-59)': len(df[(df['overall_average'] >= 50) & (df['overall_average'] < 60)]),
+                'F (Below 50)': len(df[df['overall_average'] < 50])
+            }
+            
+            # Subject averages
+            subject_averages = {}
+            for col in available_marks:
+                subject_name = col.replace('_marks', '').replace('_', ' ').title()
+                subject_averages[subject_name] = df[col].mean()
+            
+            return {
+                'average_marks': avg_marks,
+                'grade_distribution': grade_distribution,
+                'subject_averages': subject_averages,
+                'total_students': len(df)
+            }
+            
+        except Exception as e:
+            print(f"Error getting detailed marks stats: {e}")
+            return {
+                'average_marks': 0,
+                'grade_distribution': {},
+                'subject_averages': {},
+                'total_students': 0
+            }
+
     def export_data(self, format='excel', filename=None):
         """Export master data in specified format"""
         try:

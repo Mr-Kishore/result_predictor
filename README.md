@@ -129,21 +129,31 @@ To enable the enhanced AI chatbot with better responses:
 - Export data in various formats
 - Monitor system statistics
 
-##  Project Structure
+
+## Project Structure
 
 ```
 REsult/
-├── app.py                 # Main Flask application
-├── chatbot/
-│   └── chatbot.py        # AI chatbot implementation
-├── utils/
-│   ├── excel_handler.py  # Excel file processing
-│   └── predictor.py      # ML prediction logic
+├── app/                  # Main application package
+│   ├── controllers/      # Flask route controllers
+│   ├── managers/         # Business logic managers
+│   ├── models/           # Model classes (if any)
+│   ├── routes/           # API and main routes
+│   ├── services/         # Service layer (Excel, Predictor)
+│   ├── utils/            # Utility modules
+│   └── chatbot/          # Chatbot logic
+├── app.py                # Entry point for Flask app
+├── config.py             # Configuration file
+├── data/                 # Student data storage
+├── model/                # Trained ML models
+├── static/               # CSS, JS, and static files
 ├── templates/            # HTML templates
-├── static/              # CSS, JS, and static files
-├── data/                # Student data storage
-├── model/               # Trained ML models
-└── uploads/             # File upload directory
+├── tests/                # Unit and integration tests
+├── uploads/              # File upload directory
+├── requirements.txt      # Python dependencies
+├── .env                  # Environment variables
+├── .gitignore            # Git ignore file
+└── README.md             # Project documentation
 ```
 
 ##  Configuration
@@ -211,5 +221,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Chart.js for data visualization
 
 ---
+
 
 **Note**: This system is designed for educational purposes. Always ensure data privacy and security when handling student information.
